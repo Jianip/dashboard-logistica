@@ -7,7 +7,6 @@ import {
   ChevronLeft,
   ChevronRight,
   Clock3,
-  Filter,
   MapPin,
   PackageCheck,
   Search,
@@ -573,18 +572,6 @@ export default function Home() {
           </div>
         </section>
 
-        <section className="flex flex-col gap-3 rounded-lg border border-slate-200 bg-slate-950 p-5 text-white shadow-sm lg:flex-row lg:items-center lg:justify-between">
-          <div>
-            <h2 className="text-lg font-bold">Painel executivo resumido</h2>
-            <p className="mt-1 text-sm text-slate-300">
-              {metrics.delayed} entregas atrasadas, {metrics.totalDelay} dias acumulados de atraso e foco principal em {metrics.worstCarrier}.
-            </p>
-          </div>
-          <div className="inline-flex items-center gap-2 rounded-lg bg-white/10 px-4 py-3 text-sm font-bold">
-            <Filter className="h-4 w-4 text-teal-300" />
-            Visao filtrada em tempo real
-          </div>
-        </section>
       </div>
     </main>
   );

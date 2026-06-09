@@ -4,7 +4,6 @@ import {
   AlertTriangle,
   ArrowDownUp,
   BarChart3,
-  CalendarClock,
   ChevronLeft,
   ChevronRight,
   Clock3,
@@ -12,7 +11,6 @@ import {
   MapPin,
   PackageCheck,
   Search,
-  ShieldAlert,
   Truck,
 } from "lucide-react";
 import { useMemo, useState } from "react";
@@ -162,15 +160,6 @@ function SelectFilter({
 }
 
 export default function Home() {
-  const lastUpdate = useMemo(
-    () =>
-      new Intl.DateTimeFormat("pt-BR", {
-        dateStyle: "short",
-        timeStyle: "medium",
-        timeZone: "America/Sao_Paulo",
-      }).format(new Date()),
-    [],
-  );
   const [region, setRegion] = useState("Todos");
   const [carrier, setCarrier] = useState("Todos");
   const [priority, setPriority] = useState("Todos");
@@ -320,23 +309,16 @@ export default function Home() {
   return (
     <main className="min-h-screen bg-[#f6f8fb] text-slate-900">
       <section className="border-b border-slate-200 bg-white">
-        <div className="mx-auto flex max-w-7xl flex-col gap-5 px-4 py-6 sm:px-6 lg:px-8">
-          <div className="flex flex-col justify-between gap-4 lg:flex-row lg:items-center">
-            <div>
-              <div className="mb-2 inline-flex items-center gap-2 rounded-full border border-teal-200 bg-teal-50 px-3 py-1 text-xs font-semibold uppercase tracking-wide text-teal-700">
-                <ShieldAlert className="h-4 w-4" />
-                Central operacional
-              </div>
-              <h1 className="text-2xl font-bold text-slate-950 sm:text-4xl">
+        <div className="mx-auto flex max-w-7xl flex-col gap-5 px-4 py-5 sm:px-6 sm:py-6 lg:px-8">
+          <div className="max-w-4xl">
+              <h1 className="text-2xl font-bold leading-tight text-slate-950 sm:text-4xl">
                 Dashboard Inteligente de Monitoramento Logistico
               </h1>
-            </div>
-            <div className="flex items-center gap-3 rounded-lg border border-slate-200 bg-slate-50 px-4 py-3 text-sm font-medium text-slate-600">
-              <CalendarClock className="h-5 w-5 text-teal-600" />
-              <span suppressHydrationWarning>Ultima atualizacao: {lastUpdate}</span>
-            </div>
+              <p className="mt-2 text-sm leading-6 text-slate-600 sm:text-base">
+                Analise de atrasos, transportadoras, regioes criticas e prioridades operacionais.
+              </p>
           </div>
-          <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-4">
+          <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
             <SelectFilter label="Regiao" value={region} options={regions} onChange={(value) => updateFilter(setRegion, value)} />
             <SelectFilter label="Transportadora" value={carrier} options={carriers} onChange={(value) => updateFilter(setCarrier, value)} />
             <SelectFilter label="Prioridade" value={priority} options={priorities} onChange={(value) => updateFilter(setPriority, value)} />
@@ -346,16 +328,16 @@ export default function Home() {
       </section>
 
       <div className="mx-auto grid max-w-7xl gap-5 px-4 py-6 sm:px-6 lg:px-8">
-        <section className="grid gap-4 sm:grid-cols-2 xl:grid-cols-6">
+        <section className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6">
           {kpis.map((kpi) => {
             const Icon = kpi.icon;
             return (
               <article key={kpi.label} className="rounded-lg border border-slate-200 bg-white p-4 shadow-sm transition duration-200 hover:-translate-y-0.5 hover:shadow-md">
-                <div className={`mb-4 flex h-11 w-11 items-center justify-center rounded-lg ${kpi.tone}`}>
+                <div className={`mb-3 flex h-10 w-10 items-center justify-center rounded-lg sm:h-11 sm:w-11 ${kpi.tone}`}>
                   <Icon className="h-5 w-5" />
                 </div>
                 <p className="text-sm font-medium text-slate-500">{kpi.label}</p>
-                <p className="mt-2 truncate text-2xl font-bold text-slate-950" title={String(kpi.value)}>
+                <p className="mt-2 break-words text-xl font-bold text-slate-950 sm:text-2xl" title={String(kpi.value)}>
                   {kpi.value}
                 </p>
               </article>
@@ -372,7 +354,7 @@ export default function Home() {
               </div>
               <Truck className="h-6 w-6 text-teal-600" />
             </div>
-            <div className="h-80">
+            <div className="h-72 min-w-0 sm:h-80">
               <ResponsiveContainer width="100%" height="100%">
                 <BarChart data={metrics.carrierRanking} layout="vertical" margin={{ left: 16, right: 24 }}>
                   <CartesianGrid strokeDasharray="3 3" horizontal={false} stroke="#e2e8f0" />
@@ -397,7 +379,7 @@ export default function Home() {
               </div>
               <PackageCheck className="h-6 w-6 text-teal-600" />
             </div>
-            <div className="h-80">
+            <div className="h-72 min-w-0 sm:h-80">
               <ResponsiveContainer width="100%" height="100%">
                 <PieChart>
                   <Pie data={statusData} dataKey="value" nameKey="name" innerRadius={78} outerRadius={112} paddingAngle={4}>
@@ -422,7 +404,7 @@ export default function Home() {
               </div>
               <MapPin className="h-6 w-6 text-teal-600" />
             </div>
-            <div className="h-80">
+            <div className="h-72 min-w-0 sm:h-80">
               <ResponsiveContainer width="100%" height="100%">
                 <BarChart data={metrics.regionRanking} margin={{ top: 10, right: 16, left: 0, bottom: 20 }}>
                   <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e2e8f0" />
@@ -453,7 +435,7 @@ export default function Home() {
                 .sort((a, b) => b.dias_atraso - a.dias_atraso)
                 .slice(0, 5)
                 .map((item, index) => (
-                  <div key={item.id_entrega} className="flex items-center justify-between gap-3 rounded-lg border border-slate-200 bg-slate-50 p-3">
+                  <div key={item.id_entrega} className="flex flex-col justify-between gap-3 rounded-lg border border-slate-200 bg-slate-50 p-3 sm:flex-row sm:items-center">
                     <div className="flex items-center gap-3">
                       <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-white text-sm font-bold text-slate-700 shadow-sm">
                         {index + 1}
@@ -463,7 +445,7 @@ export default function Home() {
                         <p className="text-sm text-slate-500">{item.transportadora} · {item.regiao}</p>
                       </div>
                     </div>
-                    <div className="text-right">
+                    <div className="text-left sm:text-right">
                       <p className="font-bold text-red-600">{item.dias_atraso} dias</p>
                       <Badge priority={item.prioridade} />
                     </div>
@@ -509,7 +491,7 @@ export default function Home() {
               <h2 className="text-lg font-bold">Tabela interativa completa</h2>
               <p className="text-sm text-slate-500">Pesquisa, ordenacao, paginacao e destaque de atrasos criticos.</p>
             </div>
-            <div className="flex h-11 items-center gap-2 rounded-lg border border-slate-200 bg-white px-3 shadow-sm lg:w-80">
+            <div className="flex h-11 w-full items-center gap-2 rounded-lg border border-slate-200 bg-white px-3 shadow-sm lg:w-80">
               <Search className="h-4 w-4 text-slate-400" />
               <input
                 value={search}

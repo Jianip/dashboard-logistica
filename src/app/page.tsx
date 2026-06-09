@@ -158,6 +158,71 @@ function SelectFilter({
   );
 }
 
+function MobileBarList({
+  data,
+  label,
+}: {
+  data: { name: string; atraso: number }[];
+  label: string;
+}) {
+  const max = Math.max(...data.map((item) => item.atraso), 1);
+
+  return (
+    <div className="space-y-4 sm:hidden">
+      {data.map((item, index) => (
+        <div key={item.name} className="space-y-2">
+          <div className="flex items-center justify-between gap-3 text-sm">
+            <span className="font-semibold text-slate-800">{item.name}</span>
+            <span className={index === 0 ? "font-bold text-red-600" : "font-bold text-slate-700"}>
+              {item.atraso} {label}
+            </span>
+          </div>
+          <div className="h-3 overflow-hidden rounded-full bg-slate-100">
+            <div
+              className="h-full rounded-full"
+              style={{
+                width: `${Math.max(8, (item.atraso / max) * 100)}%`,
+                backgroundColor: index === 0 ? "#ef4444" : chartColors[index % chartColors.length],
+              }}
+            />
+          </div>
+        </div>
+      ))}
+    </div>
+  );
+}
+
+function MobileStatusSummary({
+  onTime,
+  delayed,
+}: {
+  onTime: number;
+  delayed: number;
+}) {
+  const total = Math.max(onTime + delayed, 1);
+  const delayedPercent = (delayed / total) * 100;
+  const onTimePercent = (onTime / total) * 100;
+
+  return (
+    <div className="space-y-4 sm:hidden">
+      <div className="flex h-4 overflow-hidden rounded-full bg-slate-100">
+        <div className="bg-red-500" style={{ width: `${delayedPercent}%` }} />
+        <div className="bg-emerald-500" style={{ width: `${onTimePercent}%` }} />
+      </div>
+      <div className="grid grid-cols-2 gap-3">
+        <div className="rounded-lg border border-red-100 bg-red-50 p-3">
+          <p className="text-xs font-semibold uppercase text-red-600">Atrasadas</p>
+          <p className="mt-1 text-2xl font-bold text-red-700">{delayed}</p>
+        </div>
+        <div className="rounded-lg border border-emerald-100 bg-emerald-50 p-3">
+          <p className="text-xs font-semibold uppercase text-emerald-600">No prazo</p>
+          <p className="mt-1 text-2xl font-bold text-emerald-700">{onTime}</p>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 export default function Home() {
   const [region, setRegion] = useState("Todos");
   const [carrier, setCarrier] = useState("Todos");
@@ -306,16 +371,16 @@ export default function Home() {
   }
 
   return (
-    <main className="min-h-screen bg-[#f6f8fb] text-slate-900">
+    <main className="min-h-screen overflow-x-hidden bg-[#f6f8fb] text-slate-900">
       <section className="border-b border-slate-200 bg-white">
         <div className="mx-auto flex max-w-7xl flex-col gap-5 px-4 py-5 sm:px-6 sm:py-6 lg:px-8">
           <div className="max-w-4xl">
-              <h1 className="text-2xl font-bold leading-tight text-slate-950 sm:text-4xl">
-                Dashboard Inteligente de Monitoramento Logistico
-              </h1>
-              <p className="mt-2 text-sm leading-6 text-slate-600 sm:text-base">
-                Analise de atrasos, transportadoras, regioes criticas e prioridades operacionais.
-              </p>
+            <h1 className="text-2xl font-bold leading-tight text-slate-950 sm:text-4xl">
+              Dashboard Inteligente de Monitoramento Logistico
+            </h1>
+            <p className="mt-2 text-sm leading-6 text-slate-600 sm:text-base">
+              Analise de atrasos, transportadoras, regioes criticas e prioridades operacionais.
+            </p>
           </div>
           <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
             <SelectFilter label="Regiao" value={region} options={regions} onChange={(value) => updateFilter(setRegion, value)} />
@@ -345,7 +410,7 @@ export default function Home() {
         </section>
 
         <section className="grid gap-5 xl:grid-cols-[1.25fr_1fr]">
-          <article className="rounded-lg border border-slate-200 bg-white p-5 shadow-sm">
+          <article className="overflow-hidden rounded-lg border border-slate-200 bg-white p-4 shadow-sm sm:p-5">
             <div className="mb-5 flex items-center justify-between gap-3">
               <div>
                 <h2 className="text-lg font-bold">Comparacao entre transportadoras</h2>
@@ -353,7 +418,8 @@ export default function Home() {
               </div>
               <Truck className="h-6 w-6 text-teal-600" />
             </div>
-            <div className="h-72 min-w-0 sm:h-80">
+            <MobileBarList data={metrics.carrierRanking} label="dias" />
+            <div className="hidden h-80 min-w-0 sm:block">
               <ResponsiveContainer width="100%" height="100%">
                 <BarChart data={metrics.carrierRanking} layout="vertical" margin={{ left: 16, right: 24 }}>
                   <CartesianGrid strokeDasharray="3 3" horizontal={false} stroke="#e2e8f0" />
@@ -370,7 +436,7 @@ export default function Home() {
             </div>
           </article>
 
-          <article className="rounded-lg border border-slate-200 bg-white p-5 shadow-sm">
+          <article className="overflow-hidden rounded-lg border border-slate-200 bg-white p-4 shadow-sm sm:p-5">
             <div className="mb-5 flex items-center justify-between gap-3">
               <div>
                 <h2 className="text-lg font-bold">Status operacional</h2>
@@ -378,10 +444,11 @@ export default function Home() {
               </div>
               <PackageCheck className="h-6 w-6 text-teal-600" />
             </div>
-            <div className="h-72 min-w-0 sm:h-80">
+            <MobileStatusSummary onTime={metrics.onTime} delayed={metrics.delayed} />
+            <div className="hidden h-80 min-w-0 sm:block">
               <ResponsiveContainer width="100%" height="100%">
                 <PieChart>
-                  <Pie data={statusData} dataKey="value" nameKey="name" innerRadius={78} outerRadius={112} paddingAngle={4}>
+                  <Pie data={statusData} dataKey="value" nameKey="name" innerRadius="52%" outerRadius="76%" paddingAngle={4}>
                     {statusData.map((entry) => (
                       <Cell key={entry.name} fill={entry.fill} />
                     ))}
@@ -395,7 +462,7 @@ export default function Home() {
         </section>
 
         <section className="grid gap-5 xl:grid-cols-[1.1fr_0.9fr]">
-          <article className="rounded-lg border border-slate-200 bg-white p-5 shadow-sm">
+          <article className="overflow-hidden rounded-lg border border-slate-200 bg-white p-4 shadow-sm sm:p-5">
             <div className="mb-5 flex items-center justify-between gap-3">
               <div>
                 <h2 className="text-lg font-bold">Analise regional</h2>
@@ -403,7 +470,8 @@ export default function Home() {
               </div>
               <MapPin className="h-6 w-6 text-teal-600" />
             </div>
-            <div className="h-72 min-w-0 sm:h-80">
+            <MobileBarList data={metrics.regionRanking} label="dias" />
+            <div className="hidden h-80 min-w-0 sm:block">
               <ResponsiveContainer width="100%" height="100%">
                 <BarChart data={metrics.regionRanking} margin={{ top: 10, right: 16, left: 0, bottom: 20 }}>
                   <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e2e8f0" />
@@ -420,7 +488,7 @@ export default function Home() {
             </div>
           </article>
 
-          <article className="rounded-lg border border-slate-200 bg-white p-5 shadow-sm">
+          <article className="rounded-lg border border-slate-200 bg-white p-4 shadow-sm sm:p-5">
             <div className="mb-4 flex items-center justify-between">
               <div>
                 <h2 className="text-lg font-bold">Ranking de entregas criticas</h2>
@@ -455,7 +523,7 @@ export default function Home() {
         </section>
 
         <section className="grid gap-5 lg:grid-cols-2">
-          <article className="rounded-lg border border-slate-200 bg-white p-5 shadow-sm">
+          <article className="rounded-lg border border-slate-200 bg-white p-4 shadow-sm sm:p-5">
             <h2 className="mb-4 flex items-center gap-2 text-lg font-bold">
               <AlertTriangle className="h-5 w-5 text-orange-500" />
               Alertas inteligentes
@@ -469,7 +537,7 @@ export default function Home() {
             </div>
           </article>
 
-          <article className="rounded-lg border border-slate-200 bg-white p-5 shadow-sm">
+          <article className="rounded-lg border border-slate-200 bg-white p-4 shadow-sm sm:p-5">
             <h2 className="mb-4 flex items-center gap-2 text-lg font-bold">
               <BarChart3 className="h-5 w-5 text-teal-600" />
               Insights executivos
@@ -484,7 +552,7 @@ export default function Home() {
           </article>
         </section>
 
-        <section className="rounded-lg border border-slate-200 bg-white p-5 shadow-sm">
+        <section className="rounded-lg border border-slate-200 bg-white p-4 shadow-sm sm:p-5">
           <div className="mb-4 flex flex-col justify-between gap-4 lg:flex-row lg:items-center">
             <div>
               <h2 className="text-lg font-bold">Tabela interativa completa</h2>
@@ -504,7 +572,48 @@ export default function Home() {
             </div>
           </div>
 
-          <div className="overflow-x-auto">
+          <div className="grid gap-3 md:hidden">
+            {paginatedRows.map((item) => (
+              <article
+                key={item.id_entrega}
+                className={`rounded-lg border p-3 ${
+                  item.prioridade === "Critica" ? "border-red-100 bg-red-50" : "border-slate-200 bg-slate-50"
+                }`}
+              >
+                <div className="mb-3 flex items-start justify-between gap-3">
+                  <div>
+                    <p className="text-xs font-semibold uppercase text-slate-500">Entrega</p>
+                    <p className="text-lg font-bold text-slate-950">{item.id_entrega}</p>
+                  </div>
+                  <Badge priority={item.prioridade} />
+                </div>
+                <div className="grid grid-cols-2 gap-3 text-sm">
+                  <div>
+                    <p className="text-xs font-semibold uppercase text-slate-500">Transportadora</p>
+                    <p className="font-semibold text-slate-800">{item.transportadora}</p>
+                  </div>
+                  <div>
+                    <p className="text-xs font-semibold uppercase text-slate-500">Regiao</p>
+                    <p className="font-semibold text-slate-800">{item.regiao}</p>
+                  </div>
+                  <div>
+                    <p className="text-xs font-semibold uppercase text-slate-500">Prazo</p>
+                    <p className="font-semibold text-slate-800">{item.prazo_dias} dias</p>
+                  </div>
+                  <div>
+                    <p className="text-xs font-semibold uppercase text-slate-500">Dias reais</p>
+                    <p className="font-semibold text-slate-800">{item.dias_reais} dias</p>
+                  </div>
+                </div>
+                <div className="mt-3 rounded-lg bg-white px-3 py-2">
+                  <p className="text-xs font-semibold uppercase text-slate-500">Dias de atraso</p>
+                  <p className="text-xl font-bold text-slate-950">{item.dias_atraso}</p>
+                </div>
+              </article>
+            ))}
+          </div>
+
+          <div className="hidden overflow-x-auto md:block">
             <table className="w-full min-w-[760px] border-separate border-spacing-y-2 text-left text-sm">
               <thead>
                 <tr className="text-xs uppercase tracking-wide text-slate-500">
